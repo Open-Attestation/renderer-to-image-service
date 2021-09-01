@@ -44,9 +44,7 @@
   "signature": {
     "type": "SHA3MerkleProof",
     "targetHash": "5fb88b05bbe1063143feef4dcfdce749d5a7279a35348be48706c40f8e54d6d5",
-    "proof": [
-      "ba4d842f1bf458d06ff749f470e25841b4e1a5943b4c2aa19305f9dd9f0ee7b6"
-    ],
+    "proof": ["ba4d842f1bf458d06ff749f470e25841b4e1a5943b4c2aa19305f9dd9f0ee7b6"],
     "merkleRoot": "0837086882a58da310b5be6683613dce42f6b911cef4df6c6717e301c009b29b"
   }
 }
