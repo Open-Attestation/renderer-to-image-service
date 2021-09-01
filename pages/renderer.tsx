@@ -1,17 +1,16 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
 import dynamic from "next/dynamic";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { isActionOf } from "typesafe-actions";
-import { getData, v2 } from "@govtechsg/open-attestation";
 import {
   FrameActions,
   HostActionsHandler,
   renderDocument,
   updateHeight,
 } from "@govtechsg/decentralized-renderer-react-components";
-import { fetchAndDecodeDocument } from "../utils/fetchDocument";
-import { ActionUrlAnchor, ActionUrlQuery } from "../types";
+import { fetchAndDecryptDocument, getDataV2OrV3, getTemplateUrl } from "../utils";
+import { ActionUrlAnchor, ActionUrlQuery, V2OrV3Document } from "../types";
 
 /* Workaround for undefined window object: Dynamic import so FrameConnector will not load on server-side */
 const FrameConnector = dynamic(
@@ -33,7 +32,7 @@ const Renderer = () => {
   const { query } = useRouter();
   const [error, setError] = useState(<></>);
   const [height, setHeight] = useState(0);
-  const [document, setDocument] = useState<v2.OpenAttestationDocument>();
+  const [document, setDocument] = useState<V2OrV3Document>();
   const [source, setSource] = useState("");
 
   useEffect(() => {
@@ -48,21 +47,25 @@ const Renderer = () => {
       let anchor: ActionUrlAnchor;
 
       try {
-        action = actionStr ? JSON.parse(actionStr) : {};
+        action = actionStr ? JSON.parse(actionStr) : {}; // TODO: Validate that action is has required fields
         anchor = anchorStr ? JSON.parse(anchorStr) : {};
-        // TODO: Validate that action is has required fields
       } catch (e) {
         console.error(e);
         return setError(<p>{e.toString()}</p>);
       }
 
-      const wrappedDocument = await fetchAndDecodeDocument(action.payload.uri, anchor.key || action.payload.key);
-      const document = getData(wrappedDocument);
-      const source = typeof document.$template === "object" ? document.$template.url : document.$template;
+      try {
+        const wrappedDocument = await fetchAndDecryptDocument(action.payload.uri, anchor.key || action.payload.key);
+        const document = getDataV2OrV3(wrappedDocument);
+        const source = getTemplateUrl(wrappedDocument);
 
-      setDocument(document);
-      setSource(source);
-      setError(null);
+        setDocument(document);
+        setSource(source);
+        setError(null);
+      } catch (e) {
+        console.error(e);
+        return setError(<p>{e.toString()}</p>);
+      }
     })();
   }, [query]);
 

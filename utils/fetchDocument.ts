@@ -1,6 +1,5 @@
 import { decryptString } from "@govtechsg/oa-encryption";
-import { v2, WrappedDocument } from "@govtechsg/open-attestation";
-import sampleWrappedDocument from "../fixtures/sample-certificate-of-award.json";
+import { V2OrV3WrappedDocument } from "../types";
 
 /**
  * Helper function to fetch and decode document (if key is present)
@@ -8,17 +7,9 @@ import sampleWrappedDocument from "../fixtures/sample-certificate-of-award.json"
  * @param key
  * @returns
  */
-export const fetchAndDecodeDocument = async (
-  uri: string,
-  key?: string
-): Promise<WrappedDocument<v2.OpenAttestationDocument>> => {
+export const fetchAndDecryptDocument = async (uri: string, key?: string): Promise<V2OrV3WrappedDocument> => {
   return await fetch(uri)
     .then((res) => res.json())
-    .catch((e) => {
-      // Fallback?
-      console.error(`Failed to fetch ${uri}`, e);
-      return sampleWrappedDocument;
-    })
     .then((obj) => ({ ...obj, key }))
-    .then((doc) => (doc.key ? decryptString(doc) : doc));
+    .then((doc) => (doc.key ? JSON.parse(decryptString(doc)) : doc));
 };
