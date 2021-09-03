@@ -12,11 +12,7 @@ import {
 import { fetchAndDecryptDocument, getDataV2OrV3, getTemplateUrl } from "../utils";
 import { ActionUrlAnchor, ActionUrlQuery, V2OrV3Document } from "../types";
 
-/* Workaround for undefined window object: Dynamic import so FrameConnector will not load on server-side */
-const FrameConnector = dynamic(
-  () => import("@govtechsg/decentralized-renderer-react-components").then((m) => m.FrameConnector),
-  { ssr: false, loading: () => <p>This component will load on client-side.</p> }
-);
+const loading = () => <p>This component will load on client-side.</p>;
 
 const missingQueryError = (
   <>
@@ -26,6 +22,12 @@ const missingQueryError = (
     </Link>
     .
   </>
+);
+
+/* Workaround for undefined window object: Dynamic import so FrameConnector will not load on server-side */
+const FrameConnector = dynamic(
+  () => import("@govtechsg/decentralized-renderer-react-components").then(({ FrameConnector }) => FrameConnector),
+  { ssr: false, loading }
 );
 
 const Renderer = () => {
