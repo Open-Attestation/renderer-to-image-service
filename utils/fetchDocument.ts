@@ -10,6 +10,6 @@ import { V2OrV3WrappedDocument } from "../types";
 export const fetchAndDecryptDocument = async (uri: string, key?: string): Promise<V2OrV3WrappedDocument> => {
   return await fetch(uri)
     .then((res) => res.json())
-    .then((obj) => ({ ...obj, key }))
+    .then((obj) => (key ? { ...obj, key } : obj))
     .then((doc) => (doc.key ? JSON.parse(decryptString(doc)) : doc));
 };
