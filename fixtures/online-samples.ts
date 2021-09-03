@@ -6,7 +6,7 @@ export const sampleCerts: {
   anchor?: ActionUrlAnchor;
 }[] = [
   {
-    title: "[Plaintext] Certificate of Award",
+    title: "[Plaintext] OpenCerts Certificate of Award Demo",
     q: { payload: { uri: "https://gallery.openattestation.com/static/documents/certificate-of-award.opencert" } },
   },
   {
