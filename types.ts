@@ -10,7 +10,7 @@ export interface ActionUrlQuery {
 
 // https://github.com/Open-Attestation/adr/blob/master/universal_actions.md
 export interface ActionUrlAnchor {
-  key?: string;
+  key: string;
 }
 
 export type V2OrV3WrappedDocument = v2.WrappedDocument | v3.WrappedDocument;

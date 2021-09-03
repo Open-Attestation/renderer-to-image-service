@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Layout from "../components/Layout";
 import { sampleCerts } from "../fixtures/online-samples";
-import { generateQueryAndAnchor } from "../utils";
+import { genQueryWithKeyInAnchor, genQueryWithKeyAsSearchParams } from "../utils";
 
 const IndexPage = () => (
   <Layout title="Renderer-to-Image Service">
@@ -11,7 +11,12 @@ const IndexPage = () => (
       <thead>
         <tr>
           <th className="border bg-gray-200">Type</th>
-          <th className="border bg-gray-200">Link</th>
+          <th className="border bg-gray-200">Render Preview</th>
+          <th className="border bg-gray-200">
+            Equivalent API Endpoint:
+            <br />
+            Renderer-to-Image
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -19,9 +24,14 @@ const IndexPage = () => (
           <tr className="" key={i}>
             <td className="border px-4 py-2">{e.title}</td>
             <td className="border text-xs underline break-all px-4 py-2">
-              <Link href={`/renderer${generateQueryAndAnchor(e.q, e.anchor)}`}>{`/renderer?q=${JSON.stringify(e.q)}${
-                e.anchor ? "#" + JSON.stringify(e.anchor) : ""
-              }`}</Link>
+              <Link href={`/renderer${genQueryWithKeyInAnchor(e.q, e.anchor)}`}>{`/renderer${decodeURIComponent(
+                genQueryWithKeyInAnchor(e.q, e.anchor)
+              )}`}</Link>
+            </td>
+            <td className="border text-xs underline break-all px-4 py-2">
+              <a
+                href={`/api/v1/renderImage${genQueryWithKeyAsSearchParams(e.q, e.anchor)}`}
+              >{`/api/v1/renderImage${decodeURIComponent(genQueryWithKeyAsSearchParams(e.q, e.anchor))}`}</a>
             </td>
           </tr>
         ))}
