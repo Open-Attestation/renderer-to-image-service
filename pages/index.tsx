@@ -30,8 +30,8 @@ const IndexPage = () => (
             </td>
             <td className="border text-xs underline break-all px-4 py-2">
               <a
-                href={`/api/v1/renderImage${genQueryWithKeyInParams(e.q, e.anchor)}`}
-              >{`/api/v1/renderImage${decodeURIComponent(genQueryWithKeyInParams(e.q, e.anchor))}`}</a>
+                href={`/api/v1/render-image${genQueryWithKeyInParams(e.q, e.anchor)}`}
+              >{`/api/v1/render-image${decodeURIComponent(genQueryWithKeyInParams(e.q, e.anchor))}`}</a>
             </td>
           </tr>
         ))}

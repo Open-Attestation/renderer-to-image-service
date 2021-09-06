@@ -4,11 +4,11 @@ An API endpoint for users to obtain a image screenshot of their Open Attestation
 
 ## Getting Started
 
-Try it out here: `https://example.com/api/v2/renderImage?q={}&anchor={}` // TODO: Deploy on Netlify
+Try it out here: `https://example.com/api/v2/render-image?q={}&anchor={}` // TODO: Deploy on Netlify
 
 ### Generating your query params
 
-The query parms used in this API endpoint closely resembles the standards set out in this document: [Universal Actions for Open-Attestation Documents](https://github.com/Open-Attestation/adr/blob/master/universal_actions.md#universal-actions-for-open-attestation-documents)
+The query params used in this API endpoint closely resembles the standards set out in this document: [Universal Actions for Open-Attestation Documents](https://github.com/Open-Attestation/adr/blob/master/universal_actions.md#universal-actions-for-open-attestation-documents)
 
 With the exception of the `#` anchor which is now embedded as a query param called `anchor`. As such, this API endpoint expects 2 query params:
 
