@@ -5,7 +5,10 @@ import { Record, String } from "runtypes";
 import { ActionUrlAnchor, ActionUrlQuery } from "../../../types";
 import { genQueryWithKeyInAnchor } from "../../../utils";
 
-const RENDERER_URL = "http://localhost:3000/renderer"; // FIXME: Obtain from env variables
+const { DEPLOY_URL, URL } = process.env; // Production
+const DEFAULT_URL = "http://localhost:3000"; // Development
+let RENDERER_URL = DEPLOY_URL || URL || DEFAULT_URL;
+RENDERER_URL += "/renderer";
 
 const ParamsRecord = Record({
   q: String,
@@ -71,31 +74,3 @@ const renderImage = async ({ method, query }: NextApiRequest, res: NextApiRespon
 };
 
 export default renderImage;
-
-const waitForFrameAttached = (page: puppeteer.Page, url: string): Promise<puppeteer.Frame> => {
-  return new Promise((resolve, reject) => {
-    const timeout = setTimeout(() => {
-      reject(new Error("Unable to locate renderer iframe."));
-    }, 30000);
-
-    page.once("frameattached", () => {
-      clearTimeout(timeout);
-      const frame = page.frames().find((frame) => frame.url() === url);
-      resolve(frame);
-    });
-  });
-};
-
-const waitForFrame = (page: puppeteer.Page, url: string) => {
-  let fulfill: (frame: puppeteer.Frame) => void;
-
-  const checkFrame = () => {
-    const frame = page.frames().find((f) => f.url() === url);
-    if (frame) fulfill(frame);
-    else page.once("frameattached", checkFrame);
-  };
-
-  const promise = new Promise<puppeteer.Frame>((x) => (fulfill = x));
-  checkFrame();
-  return promise;
-};
