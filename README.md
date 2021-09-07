@@ -2,9 +2,20 @@
 
 An API endpoint for users to obtain a image screenshot of their Open Attestation document.
 
+## Prerequisites
+
+- Node v14.17 (Node v16 does not work with Open Attestation due to an odd bug happening when the `npm run build` command is run.)
+
 ## Getting Started
 
 Try it out here: `https://example.com/api/v2/render-image?q={}&anchor={}` // TODO: Deploy on Netlify
+
+To run locally:
+
+```bash
+npm i
+npm run dev
+```
 
 ### Generating your query params
 
