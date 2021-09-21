@@ -9,7 +9,7 @@ it("should fetch a plaintext document from a url", async () => {
   expect(Object.keys(doc)).toStrictEqual(["version", "data", "signature"]);
 });
 
-it("should fetch an encyrpted document from a url", async () => {
+it("should fetch an encrypted document from a url", async () => {
   const doc = await fetchAndDecryptDocument(encryptedDoc.q.payload.uri, encryptedDoc.anchor.key);
   expect(Object.keys(doc)).toStrictEqual(["version", "data", "signature"]);
 });
