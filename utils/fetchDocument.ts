@@ -1,3 +1,4 @@
+import axios from "axios";
 import { decryptString } from "@govtechsg/oa-encryption";
 import { V2OrV3WrappedDocument } from "../types";
 
@@ -8,8 +9,9 @@ import { V2OrV3WrappedDocument } from "../types";
  * @returns
  */
 export const fetchAndDecryptDocument = async (uri: string, key?: string): Promise<V2OrV3WrappedDocument> => {
-  return await fetch(uri)
-    .then((res) => res.json())
+  return await axios
+    .get(uri)
+    .then((res) => res.data)
     .then((obj) => (key ? { ...obj, key } : obj))
     .then((doc) => (doc.key ? JSON.parse(decryptString(doc)) : doc));
 };
