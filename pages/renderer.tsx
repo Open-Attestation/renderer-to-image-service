@@ -71,14 +71,17 @@ const Renderer = () => {
     })();
   }, [query]);
 
-  const onConnected = useCallback((toFrame: HostActionsHandler) => {
-    toFrame(null);
-  }, []);
+  const onConnected = useCallback(
+    (toFrame: HostActionsHandler) => {
+      toFrame(renderDocument({ document }));
+    },
+    [document]
+  );
 
   const fromFrame = useCallback((action: FrameActions) => {
-    // if (isActionOf(updateHeight, action)) {
-    //   setHeight(action.payload);
-    // }
+    if (isActionOf(updateHeight, action)) {
+      setHeight(action.payload);
+    }
   }, []);
 
   if (error) return error;
