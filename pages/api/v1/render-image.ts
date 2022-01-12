@@ -1,5 +1,4 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import puppeteer from "puppeteer-core";
 import chromium from "chrome-aws-lambda";
 import { Record, String } from "runtypes";
 
@@ -50,10 +49,11 @@ const renderImage = async ({ method, query }: NextApiRequest, res: NextApiRespon
 
       /* Screenshot using Puppeteer */
       try {
-        const browser = await puppeteer.launch({
+        const browser = await chromium.puppeteer.launch({
           args: chromium.args,
           executablePath: await chromium.executablePath,
-          headless: chromium.headless,
+          defaultViewport: chromium.defaultViewport,
+          headless: true,
         });
         const page = await browser.newPage();
 
