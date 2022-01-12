@@ -5,9 +5,9 @@ import { Record, String } from "runtypes";
 import { ActionUrlAnchor, ActionUrlQuery } from "../../../types";
 import { genQueryWithKeyInAnchor } from "../../../utils";
 
-const { DEPLOY_URL, URL } = process.env; // Production
+const DEPLOY_URL = process.env.DEPLOY_URL || process.env.URL; // Production (By Netlify)
 const DEFAULT_URL = "http://localhost:3000"; // Development
-let RENDERER_URL = DEPLOY_URL || URL || DEFAULT_URL;
+let RENDERER_URL = DEPLOY_URL || DEFAULT_URL;
 RENDERER_URL += "/renderer";
 
 const ParamsRecord = Record({
