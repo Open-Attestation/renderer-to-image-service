@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-core";
+import chromium from "chrome-aws-lambda";
 import { Record, String } from "runtypes";
 
 import { ActionUrlAnchor, ActionUrlQuery } from "../../../types";
@@ -47,28 +48,37 @@ const renderImage = async ({ method, query }: NextApiRequest, res: NextApiRespon
         res.status(400).end(`${e.toString()}`);
       }
 
-      const browser = await puppeteer.launch();
-      const page = await browser.newPage();
+      /* Screenshot using Puppeteer */
+      try {
+        const browser = await puppeteer.launch({
+          args: chromium.args,
+          executablePath: await chromium.executablePath,
+          headless: chromium.headless,
+        });
+        const page = await browser.newPage();
 
-      const queryAndAnchor = genQueryWithKeyInAnchor(q, anchor);
-      const rendererUrl = RENDERER_URL + queryAndAnchor;
-      await page.goto(rendererUrl, { waitUntil: "networkidle2" });
+        const queryAndAnchor = genQueryWithKeyInAnchor(q, anchor);
+        const rendererUrl = RENDERER_URL + queryAndAnchor;
+        await page.goto(rendererUrl, { waitUntil: "networkidle2" });
 
-      const iframe = page
-        .frames()
-        // Find inner frame that has a parentFrame.url of rendererUrl
-        .find((f) => f.parentFrame()?.url() === rendererUrl);
-      const cert = await iframe.$("#rendered-certificate");
-      const img = (await cert.screenshot({ encoding: "base64" })) as string;
-      const imgBuffer = Buffer.from(img, "base64");
+        const iframe = page
+          .frames()
+          // Find inner frame that has a parentFrame.url of rendererUrl
+          .find((f) => f.parentFrame()?.url() === rendererUrl);
+        const cert = await iframe.$("#rendered-certificate");
+        const img = (await cert.screenshot({ encoding: "base64" })) as string;
+        const imgBuffer = Buffer.from(img, "base64");
 
-      await browser.close();
+        await browser.close();
 
-      res.writeHead(200, { "Content-Type": "image/png", "Content-Length": imgBuffer.length });
-      res.end(imgBuffer);
+        res.writeHead(200, { "Content-Type": "image/png", "Content-Length": imgBuffer.length });
+        res.end(imgBuffer);
+      } catch (e) {
+        res.status(500).end(`${e}`);
+      }
       break;
     default:
-      res.setHeader("Allow", ["GET", "PUT"]);
+      res.setHeader("Allow", ["GET"]);
       res.status(405).end(`Method ${method} is not allowed`);
   }
 };
