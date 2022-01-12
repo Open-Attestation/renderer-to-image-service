@@ -5,6 +5,7 @@ import { Record, String } from "runtypes";
 import { ActionUrlAnchor, ActionUrlQuery } from "../../../types";
 import { genQueryWithKeyInAnchor } from "../../../utils";
 
+const TIMEOUT_IN_MS = 9 * 1000; // Netlify's execution limit is 10 secs (https://docs.netlify.com/functions/overview/#default-deployment-options)
 const DEPLOY_URL = process.env.DEPLOY_URL; // Production (By Netlify)
 const DEFAULT_URL = "http://localhost:3000"; // Development
 let RENDERER_URL = DEPLOY_URL || DEFAULT_URL;
@@ -59,7 +60,7 @@ const renderImage = async ({ method, query }: NextApiRequest, res: NextApiRespon
 
         const queryAndAnchor = genQueryWithKeyInAnchor(q, anchor);
         const rendererUrl = RENDERER_URL + queryAndAnchor;
-        await page.goto(rendererUrl, { waitUntil: "networkidle2" });
+        await page.goto(rendererUrl, { waitUntil: "networkidle2", timeout: TIMEOUT_IN_MS });
 
         const iframe = page
           .frames()
