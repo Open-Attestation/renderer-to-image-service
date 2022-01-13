@@ -53,7 +53,6 @@ const renderImage = async ({ method, query }: NextApiRequest, res: NextApiRespon
         const browser = await chromium.puppeteer.launch({
           args: chromium.args,
           executablePath: await chromium.executablePath,
-          defaultViewport: chromium.defaultViewport,
           headless: true,
         });
         const page = await browser.newPage();
