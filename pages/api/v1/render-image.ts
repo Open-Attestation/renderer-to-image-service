@@ -6,7 +6,7 @@ import { ActionUrlAnchor, ActionUrlQuery } from "../../../types";
 import { genQueryWithKeyInAnchor } from "../../../utils";
 
 const TIMEOUT_IN_MS = 9 * 1000; // Netlify's execution limit is 10 secs (https://docs.netlify.com/functions/overview/#default-deployment-options)
-const DEPLOY_URL = process.env.DEPLOY_URL; // Production (By Netlify)
+const DEPLOY_URL = process.env.deployUrl; // Production (See next.config.js file)
 const DEFAULT_URL = "http://localhost:3000"; // Development
 let RENDERER_URL = DEPLOY_URL || DEFAULT_URL;
 RENDERER_URL += "/renderer";
