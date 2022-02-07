@@ -28,5 +28,12 @@ const decryptDoc = (doc, key?: string) => {
     doc = JSON.parse(decryptString({ ...doc, key }));
   }
 
+  // Check if valid OpenAttestation document
+  if (!validateSchema(doc)) {
+    throw new Error(
+      `[Invalid OA document] An invalid OpenAttestation document has been fetched. Refer to the docs here: https://github.com/Open-Attestation/renderer-to-image-service`
+    );
+  }
+
   return doc;
 };
