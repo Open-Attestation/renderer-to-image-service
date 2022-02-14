@@ -29,15 +29,17 @@ const renderImage = async ({ method, query }: NextApiRequest, res: NextApiRespon
           headless: true,
         });
         const page = await browser.newPage();
+        // await page.setViewport({ width: 1920, height: 1080, deviceScaleFactor: 2 });
+        await page.emulateMediaType("print");
 
         const queryAndAnchor = genQueryWithKeyInAnchor(q, anchor);
         const rendererUrl = RENDERER_URL + queryAndAnchor;
         await page.goto(rendererUrl, { waitUntil: "networkidle2", timeout: TIMEOUT_IN_MS });
 
-        // Get reference of parent frame (first frame)
-        const iframe = page.frames().shift();
-        await page.setContent(await iframe.content(), { waitUntil: "networkidle2", timeout: TIMEOUT_IN_MS });
-        const pdf = await page.pdf({ printBackground: true, format: "a4" });
+        const pdf = await page.pdf({
+          printBackground: true,
+          format: "a4",
+        });
 
         await browser.close();
 
