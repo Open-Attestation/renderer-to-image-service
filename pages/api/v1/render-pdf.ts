@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import chromium from "chrome-aws-lambda";
 import { ActionUrlAnchor, ActionUrlQuery } from "../../../types";
 import { genQueryWithKeyInAnchor, validateApiQueryParams } from "../../../utils";
+import { getPage } from "../../../utils/getPage";
 
 const TIMEOUT_IN_MS = 9 * 1000; // Netlify's execution limit is 10 secs (https://docs.netlify.com/functions/overview/#default-deployment-options)
 const DEPLOY_URL = process.env.deployUrl; // Production (See next.config.js file)
@@ -23,13 +23,7 @@ const renderImage = async ({ method, query }: NextApiRequest, res: NextApiRespon
 
       /* PDF capture using Puppeteer */
       try {
-        const browser = await chromium.puppeteer.launch({
-          args: chromium.args,
-          executablePath: await chromium.executablePath,
-          headless: true,
-        });
-        const page = await browser.newPage();
-        // await page.setViewport({ width: 1920, height: 1080, deviceScaleFactor: 2 });
+        const page = await getPage();
         await page.emulateMediaType("print");
 
         const queryAndAnchor = genQueryWithKeyInAnchor(q, anchor);
@@ -40,8 +34,6 @@ const renderImage = async ({ method, query }: NextApiRequest, res: NextApiRespon
           printBackground: true,
           format: "a4",
         });
-
-        await browser.close();
 
         res.writeHead(200, { "Content-Type": "application/pdf", "Content-Length": pdf.length });
         res.end(pdf);
