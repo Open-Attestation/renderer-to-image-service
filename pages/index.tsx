@@ -17,6 +17,11 @@ const IndexPage = () => (
             <br />
             Renderer-to-Image
           </th>
+          <th className="border bg-gray-200">
+            Equivalent API Endpoint:
+            <br />
+            Renderer-to-PDF
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -32,6 +37,11 @@ const IndexPage = () => (
               <a
                 href={`/api/v1/render-image${genQueryWithKeyInParams(e.q, e.anchor)}`}
               >{`/api/v1/render-image${decodeURIComponent(genQueryWithKeyInParams(e.q, e.anchor))}`}</a>
+            </td>
+            <td className="border text-xs underline break-all px-4 py-2">
+              <a
+                href={`/api/v1/render-pdf${genQueryWithKeyInParams(e.q, e.anchor)}`}
+              >{`/api/v1/render-pdf${decodeURIComponent(genQueryWithKeyInParams(e.q, e.anchor))}`}</a>
             </td>
           </tr>
         ))}
