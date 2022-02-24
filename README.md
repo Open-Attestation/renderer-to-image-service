@@ -40,6 +40,13 @@ npm i
 npm run dev
 ```
 
+### Available endpoints
+
+> See following [section](#generating-your-query-params) on how to create `q` and `anchor`
+
+- `/api/v2/render-image?q={}&anchor={}`
+- `/api/v2/render-pdf?q={}&anchor={}`
+
 ### Generating your query params
 
 The query params used in this API endpoint closely resembles the standards set out in [Universal Actions for OpenAttestation documents](https://github.com/Open-Attestation/adr/blob/master/universal_actions.md#universal-actions-for-open-attestation-documents) but with one caveat - the `#` anchor containing the key is now embedded as a query param called anchor. This is because actual `#` anchors do not get sent to the server-side.
