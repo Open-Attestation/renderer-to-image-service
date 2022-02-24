@@ -21,25 +21,22 @@ const renderImage = async ({ method, query }: NextApiRequest, res: NextApiRespon
         break;
       }
 
-      /* Image capture using Puppeteer */
+      /* PDF capture using Puppeteer */
       try {
         const page = await getPage();
-        await page.emulateMediaType(null);
+        await page.emulateMediaType("print");
 
         const queryAndAnchor = genQueryWithKeyInAnchor(q, anchor);
         const rendererUrl = RENDERER_URL + queryAndAnchor;
         await page.goto(rendererUrl, { waitUntil: "networkidle2", timeout: TIMEOUT_IN_MS });
 
-        const iframe = page
-          .frames()
-          // Find inner frame that has a parentFrame.url of rendererUrl
-          .find((f) => f.parentFrame()?.url() === rendererUrl);
-        const cert = await iframe.$("#rendered-certificate");
-        const img = (await cert.screenshot({ encoding: "base64" })) as string;
-        const imgBuffer = Buffer.from(img, "base64");
+        const pdf = await page.pdf({
+          printBackground: true,
+          format: "a4",
+        });
 
-        res.writeHead(200, { "Content-Type": "image/png", "Content-Length": imgBuffer.length });
-        res.end(imgBuffer);
+        res.writeHead(200, { "Content-Type": "application/pdf", "Content-Length": pdf.length });
+        res.end(pdf);
       } catch (e) {
         res.status(500).end(e instanceof Error ? e.message : `UnknownError: ${JSON.stringify(e)}`);
       }
