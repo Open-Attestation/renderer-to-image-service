@@ -14,7 +14,7 @@
     "@govtechsg/open-attestation": "^6.3.0",
     "axios": "^0.24.0",
     "chrome-aws-lambda": "^5.5.0",
-    "next": "latest",
+    "next": "12.3.4",
     "puppeteer-core": "^13.4.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
