@@ -7,7 +7,6 @@ const HEADERS_TO_REMOVE = ["x-frame-options", "content-security-policy", "access
 export const getPage = async () => {
   const browser = await puppeteer.launch({
     args: [...chromium.args, "--disable-web-security"],
-    defaultViewport: chromium.defaultViewport,
     executablePath: await chromium.executablePath(),
     headless: chromium.headless,
   });
