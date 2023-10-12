@@ -3,7 +3,7 @@ import { ActionUrlAnchor, ActionUrlQuery } from "../../../types";
 import { genQueryWithKeyInAnchor, validateApiQueryParams } from "../../../utils";
 import { getPage } from "../../../utils/getPage";
 
-const TIMEOUT_IN_MS = 9 * 1000; // Netlify's execution limit is 10 secs (https://docs.netlify.com/functions/overview/#default-deployment-options)
+const MAX_TIMEOUT_IN_MS = 10 * 1000; // Netlify's execution limit is 10 secs (https://docs.netlify.com/functions/overview/#default-deployment-options)
 const DEPLOY_URL = process.env.deployUrl; // Production (See next.config.js file)
 const DEFAULT_URL = "http://localhost:3000"; // Development
 let RENDERER_URL = DEPLOY_URL || DEFAULT_URL;
@@ -22,19 +22,20 @@ const renderImage = async ({ method, query }: NextApiRequest, res: NextApiRespon
       }
 
       /* Image capture using Puppeteer */
+      const { browser, page } = await getPage();
+
       try {
-        const page = await getPage();
         await page.emulateMediaType(null);
 
         const queryAndAnchor = genQueryWithKeyInAnchor(q, anchor);
         const rendererUrl = RENDERER_URL + queryAndAnchor;
-        await page.goto(rendererUrl, { waitUntil: "networkidle2", timeout: TIMEOUT_IN_MS });
+        await page.goto(rendererUrl, { waitUntil: "networkidle2", timeout: MAX_TIMEOUT_IN_MS });
 
-        const iframe = page
-          .frames()
-          // Find inner frame that has a parentFrame.url of rendererUrl
-          .find((f) => f.parentFrame()?.url() === rendererUrl);
-        const cert = await iframe.$("#rendered-certificate");
+        const iframe = await page.$("iframe#iframe");
+        const contentFrame = await iframe.contentFrame();
+        await contentFrame.waitForSelector("#rendered-certificate", { visible: true, timeout: MAX_TIMEOUT_IN_MS });
+        const cert = await contentFrame.$("#rendered-certificate");
+
         const img = (await cert.screenshot({ encoding: "base64" })) as string;
         const imgBuffer = Buffer.from(img, "base64");
 
@@ -42,6 +43,8 @@ const renderImage = async ({ method, query }: NextApiRequest, res: NextApiRespon
         res.end(imgBuffer);
       } catch (e) {
         res.status(500).end(e instanceof Error ? e.message : `UnknownError: ${JSON.stringify(e)}`);
+      } finally {
+        await browser.close();
       }
       break;
     default:
