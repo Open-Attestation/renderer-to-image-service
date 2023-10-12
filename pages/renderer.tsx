@@ -17,8 +17,8 @@ const loading = () => <p>This component will load on client-side.</p>;
 const missingQueryError = (
   <>
     Please provide valid query params. See examples{" "}
-    <Link href="/">
-      <a className="text-blue-500">here</a>
+    <Link href="/" className="text-blue-500">
+      here
     </Link>
     .
   </>
