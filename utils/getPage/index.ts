@@ -1,15 +1,23 @@
 import chromium from "@sparticuz/chromium";
-import puppeteer from "puppeteer";
+import puppeteer, { PuppeteerLaunchOptions } from "puppeteer";
 import axios, { isAxiosError } from "axios";
 
 const HEADERS_TO_REMOVE = ["x-frame-options", "content-security-policy", "access-control-allow-origin"];
 
 export const getPage = async () => {
-  const browser = await puppeteer.launch({
-    args: [...chromium.args, "--disable-web-security"],
-    executablePath: await chromium.executablePath(),
-    headless: chromium.headless,
-  });
+  const options: PuppeteerLaunchOptions =
+    process.env.NODE_ENV === "production"
+      ? {
+          args: [...chromium.args, "--disable-web-security"],
+          executablePath: await chromium.executablePath(),
+          headless: chromium.headless,
+        }
+      : {
+          args: ["--disable-web-security"],
+          headless: false,
+        };
+
+  const browser = await puppeteer.launch(options);
   const page = await browser.newPage();
 
   await page.setBypassCSP(true);
