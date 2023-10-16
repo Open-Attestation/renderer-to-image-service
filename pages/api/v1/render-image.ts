@@ -3,7 +3,6 @@ import { ActionUrlAnchor, ActionUrlQuery } from "../../../types";
 import { genQueryWithKeyInAnchor, validateApiQueryParams } from "../../../utils";
 import { getPage } from "../../../utils/getPage";
 
-const MAX_TIMEOUT_IN_MS = 10 * 1000; // Netlify's execution limit is 10 secs (https://docs.netlify.com/functions/overview/#default-deployment-options)
 const DEPLOY_URL = process.env.deployUrl; // Production (See next.config.js file)
 const DEFAULT_URL = "http://localhost:3000"; // Development
 let RENDERER_URL = DEPLOY_URL || DEFAULT_URL;
@@ -29,11 +28,11 @@ const renderImage = async ({ method, query }: NextApiRequest, res: NextApiRespon
 
         const queryAndAnchor = genQueryWithKeyInAnchor(q, anchor);
         const rendererUrl = RENDERER_URL + queryAndAnchor;
-        await page.goto(rendererUrl, { waitUntil: "networkidle2", timeout: MAX_TIMEOUT_IN_MS });
+        await page.goto(rendererUrl, { waitUntil: "networkidle2" });
 
         const iframe = await page.$("iframe#iframe");
         const contentFrame = await iframe.contentFrame();
-        await contentFrame.waitForSelector("#rendered-certificate", { visible: true, timeout: MAX_TIMEOUT_IN_MS });
+        await contentFrame.waitForSelector("#rendered-certificate", { visible: true });
         const cert = await contentFrame.$("#rendered-certificate");
 
         const img = (await cert.screenshot({ encoding: "base64" })) as string;
