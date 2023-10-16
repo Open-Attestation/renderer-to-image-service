@@ -1,35 +1,26 @@
 # Renderer-to-Image Service
 
-An API endpoint for users to obtain an image screenshot of their OpenAttestation document.
+> **Note**: This service is still in its experimental phase.
+
+An API endpoint for users to obtain an image or PDF screenshot of their OpenAttestation document.
 
 ## Prerequisites
 
-At a glance, only the following versions are supported:
+- Node - v18 (`lts/hydrogen`)
+- puppeteer-core - v21.3.8
+- @sparticuz/chromium - v117.0.0
 
-- chrome-aws-lambda: v5.5.0
-- Node: v12 and v14 (Lambda runtime and development respectively)
+### Versions must be matched correctly
 
-### chrome-aws-lambda - v5.5.0
+Puppeteer ships with a preferred version of chromium. Refer to [installation instructions](https://github.com/Sparticuz/chromium#install) on how to match versions between both `puppeteer-core` and `@sparticuz/chromium`.
 
-Due to the [deployment package size limit of AWS Lambda](https://docs.aws.amazon.com/lambda/latest/dg/gettingstarted-limits.html), deployed functions on Netlify needs to be <= 50MB. To get around this limitation, the `chrome-aws-lambda` dependency in [package.json](./package.json) has been pinned to v5.5.0 as it is [smaller in size](https://github.com/alixaxel/chrome-aws-lambda/issues/200#issuecomment-899603464).
+### Why these dependencies
 
-### Develop/Build - Node v14
-
-When developing or building the Next app, please use Node v14.
-
-> Note: Node v16 does not work with the OpenAttestation library (@govtechsg/decentralized-renderer-react-components) due to an odd bug happening when the `npm run build` command is run.
-
-### Deployed Lambda runtime for API functions - Node v12
-
-When deploying the API functions to Netlify, please set runtime to Node v12 by setting the following environment variable in Netlify:
-
-```text
-AWS_LAMBDA_JS_RUNTIME=nodejs12.x
-```
-
-> Note: Node v12 is required because `chrome-aws-lambda` (Chromium) requires a shared library `libnss3.so` that seems to be missing in Node v14.
+Due to the [deployment package size limit of AWS Lambda](https://docs.aws.amazon.com/lambda/latest/dg/gettingstarted-limits.html), deployed functions needs to be <= 50MB. To get around this limitation, lightweight dependencies such as `puppeteer-core` and `@sparticuz/chromium` are used.
 
 ## Getting Started
+
+> **Note**: The deployed Netlify instance has a hard timeout at 10 seconds which is too little time for some renderers. As such, screenshoting of some OA documents may not work.
 
 Try it out here: <https://renderer-to-image.netlify.app>
 
@@ -80,5 +71,5 @@ Decoded resource after **`&anchor=`**:
 **Final URL**:
 
 ```text
-https://renderer-to-image.netlify.app/api/v1/render-image?q=%7B%22payload%22%3A%7B%22uri%22%3A%22https%3A%2F%2Fgallery.openattestation.com%2Fstatic%2Fdocuments%2Ftranscript-encrypted.opencert%22%7D%7D&anchor=%7B%22key%22%3A%225b433c297f3b35690461b9ee08d77f3e8ee47ec86e5b8b1322b056da6f0b86c4%22%7D
+https://renderer-to-image.netlify.app/api/v1/render-image?q=%7B%22payload%22%3A%7B%22uri%22%3A%22https%3A%2F%2Fgallery.openattestation.com%2Fstatic%2Fdocuments%2Ftranscript-encrypted.opencert%22%7D%7D&anchor=%7B%22key%22%3A%22691add1930798b63b17c8683a4776bedc16771ea5664337e21a563be0529024f%22%7D
 ```
