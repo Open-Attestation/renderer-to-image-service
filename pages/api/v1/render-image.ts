@@ -40,8 +40,6 @@ const renderImage = async ({ method, query }: NextApiRequest, res: NextApiRespon
         setRendererUrl(agencyRendererUrl);
         await page.setContent(iframeContent);
 
-        await sleep(10000);
-
         const img = (await page.screenshot({ encoding: "base64", fullPage: true })) as string;
         const imgBuffer = Buffer.from(img, "base64");
 
@@ -62,10 +60,10 @@ const renderImage = async ({ method, query }: NextApiRequest, res: NextApiRespon
 
 export default renderImage;
 
-function sleep(time: number) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(undefined);
-    }, time);
-  });
-}
+// function sleep(time: number) {
+//   return new Promise((resolve) => {
+//     setTimeout(() => {
+//       resolve(undefined);
+//     }, time);
+//   });
+// }
