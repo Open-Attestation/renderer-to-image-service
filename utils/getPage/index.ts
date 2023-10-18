@@ -4,7 +4,9 @@ import axios, { isAxiosError } from "axios";
 
 const HEADERS_TO_REMOVE = ["x-frame-options", "content-security-policy", "access-control-allow-origin"];
 
+let rendererUrl: string = "";
 export const getPage = async () => {
+  const setRendererUrl = (url) => (rendererUrl = url);
   const options: PuppeteerLaunchOptions =
     process.env.NODE_ENV === "production"
       ? {
@@ -26,7 +28,10 @@ export const getPage = async () => {
   page.on("request", async (request) => {
     try {
       const response = await axios({
-        url: request.url(),
+        url:
+          request.url().includes("_next") || request.url().includes("renderer")
+            ? request.url()
+            : request.url().replaceAll("http://localhost:3000", rendererUrl),
         responseType: "arraybuffer",
         method: request.method(),
         data: request.postData(),
@@ -57,5 +62,5 @@ export const getPage = async () => {
     }
   });
 
-  return { browser, page };
+  return { browser, page, setRendererUrl };
 };

@@ -87,7 +87,7 @@ const Renderer = () => {
   if (error) return error;
   return (
     <FrameConnector
-      style={{ height: `${height}px`, width: `100%`, border: 0 }}
+      style={{ width: `100%`, border: 0 }}
       source={source}
       onConnected={onConnected}
       dispatch={fromFrame}

@@ -21,21 +21,24 @@ const renderImage = async ({ method, query }: NextApiRequest, res: NextApiRespon
       }
 
       /* Image capture using Puppeteer */
-      const { browser, page } = await getPage();
+      const { browser, page, setRendererUrl } = await getPage();
 
       try {
         await page.emulateMediaType(null);
 
         const queryAndAnchor = genQueryWithKeyInAnchor(q, anchor);
         const rendererUrl = RENDERER_URL + queryAndAnchor;
+        setRendererUrl(rendererUrl);
+
         await page.goto(rendererUrl, { waitUntil: "networkidle2" });
 
         const iframe = await page.$("iframe#iframe");
         const contentFrame = await iframe.contentFrame();
         await contentFrame.waitForSelector("#rendered-certificate", { visible: true });
-        const cert = await contentFrame.$("#rendered-certificate");
-
-        const img = (await cert.screenshot({ encoding: "base64" })) as string;
+        await contentFrame.$("#rendered-certificate");
+        const iframeContent = await contentFrame.content();
+        page.setContent(iframeContent);
+        const img = (await page.screenshot({ encoding: "base64", fullPage: true })) as string;
         const imgBuffer = Buffer.from(img, "base64");
 
         res.writeHead(200, { "Content-Type": "image/png", "Content-Length": imgBuffer.length });
@@ -53,3 +56,11 @@ const renderImage = async ({ method, query }: NextApiRequest, res: NextApiRespon
 };
 
 export default renderImage;
+
+function sleep(time: number) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(undefined);
+    }, time);
+  });
+}
