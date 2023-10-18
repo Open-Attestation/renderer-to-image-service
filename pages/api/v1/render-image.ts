@@ -37,19 +37,24 @@ const renderImage = async ({ method, query }: NextApiRequest, res: NextApiRespon
         const contentFrame = await iframe.contentFrame();
         await contentFrame.waitForSelector("#rendered-certificate", { visible: true });
         await contentFrame.$("#rendered-certificate");
-        const emotionStyles = await contentFrame.evaluate(() => {
-          return [...document.querySelectorAll("[data-emotion]")]
-            .flatMap(({ sheet }) => [...sheet.cssRules].map((rules) => rules.cssText))
-            .join("\n");
+        const styles = await contentFrame.evaluate(() => {
+          const r = [];
+          for (var ss of document.styleSheets) {
+            if (ss.cssRules) {
+              [...ss.cssRules].forEach((rules) => r.push(rules.cssText));
+            }
+          }
+
+          return r.join("\n");
         });
 
         const iframeContent = await contentFrame.content();
         setRendererUrl(agencyRendererUrl);
         await page.setJavaScriptEnabled(false);
         await page.setContent(iframeContent);
-        if (emotionStyles.length)
+        if (styles.length)
           await page.addStyleTag({
-            content: emotionStyles,
+            content: styles,
           });
 
         const img = (await page.screenshot({ encoding: "base64", fullPage: true })) as string;
@@ -79,3 +84,16 @@ function sleep(time: number) {
     }, time);
   });
 }
+
+// return [...document.querySelectorAll("[data-emotion]")]
+// .flatMap(({ sheet }) => [...sheet.cssRules].map((rules) => rules.cssText))
+// .join("\n");
+
+// const r = []
+//   for(var ss of document.styleSheets){
+//     if(ss.cssRules){
+//       [...ss.cssRules].forEach((rules) => r.push(rules.cssText))
+//     }
+//   }
+
+//   console.log(r.join('\n'))
