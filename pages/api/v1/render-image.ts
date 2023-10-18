@@ -31,6 +31,7 @@ const renderImage = async ({ method, query }: NextApiRequest, res: NextApiRespon
         await page.goto(rendererUrl, { waitUntil: "networkidle2" });
 
         const iframe = await page.$("iframe#iframe");
+        const iframeBoundingBox = await iframe.boundingBox();
         const contentFrame = await iframe.contentFrame();
         await contentFrame.waitForSelector("#rendered-certificate", { visible: true });
         const cert = await contentFrame.$("#rendered-certificate");
@@ -40,7 +41,7 @@ const renderImage = async ({ method, query }: NextApiRequest, res: NextApiRespon
         await sleep(1000);
         const viewPort = await page.viewport();
         const certBoundingBox = await cert.boundingBox();
-        const iframeHeight = viewPort.height + Math.abs(certBoundingBox.y);
+        const newIframeHeight = viewPort.height + Math.abs(certBoundingBox.y);
         await page.evaluate(() => {
           window.scrollTo({
             top: 0,
@@ -48,7 +49,7 @@ const renderImage = async ({ method, query }: NextApiRequest, res: NextApiRespon
         });
 
         page.addStyleTag({
-          content: `iframe { height: ${iframeHeight}px!important; }`,
+          content: `iframe { height: ${Math.max(newIframeHeight, iframeBoundingBox.height)}px!important; }`,
         });
 
         const img = (await iframe.screenshot({
