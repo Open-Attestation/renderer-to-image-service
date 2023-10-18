@@ -27,7 +27,8 @@ export const getPage = async () => {
 
   page.on("request", async (request) => {
     let url = request.url();
-    if (rendererUrl && url.startsWith("http://localhost:3000") && !url.includes(".js")) {
+
+    if (rendererUrl && url.startsWith("http://localhost:3000")) {
       url = request.url().replaceAll("http://localhost:3000", rendererUrl);
     }
 

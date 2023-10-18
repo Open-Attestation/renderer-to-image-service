@@ -33,12 +33,24 @@ const renderImage = async ({ method, query }: NextApiRequest, res: NextApiRespon
 
         const iframe = await page.$("iframe#iframe");
         const agencyRendererUrl = await page.$eval("iframe#iframe", (element) => element.getAttribute("src"));
+
         const contentFrame = await iframe.contentFrame();
         await contentFrame.waitForSelector("#rendered-certificate", { visible: true });
         await contentFrame.$("#rendered-certificate");
+        const emotionStyles = await contentFrame.evaluate(() => {
+          return [...document.querySelectorAll("[data-emotion]")]
+            .flatMap(({ sheet }) => [...sheet.cssRules].map((rules) => rules.cssText))
+            .join("\n");
+        });
+
         const iframeContent = await contentFrame.content();
         setRendererUrl(agencyRendererUrl);
+        await page.setJavaScriptEnabled(false);
         await page.setContent(iframeContent);
+        if (emotionStyles.length)
+          await page.addStyleTag({
+            content: emotionStyles,
+          });
 
         const img = (await page.screenshot({ encoding: "base64", fullPage: true })) as string;
         const imgBuffer = Buffer.from(img, "base64");
@@ -60,10 +72,10 @@ const renderImage = async ({ method, query }: NextApiRequest, res: NextApiRespon
 
 export default renderImage;
 
-// function sleep(time: number) {
-//   return new Promise((resolve) => {
-//     setTimeout(() => {
-//       resolve(undefined);
-//     }, time);
-//   });
-// }
+function sleep(time: number) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(undefined);
+    }, time);
+  });
+}
