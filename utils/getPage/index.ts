@@ -5,8 +5,8 @@ import axios, { isAxiosError } from "axios";
 const HEADERS_TO_REMOVE = ["x-frame-options", "content-security-policy", "access-control-allow-origin"];
 
 let rendererUrl: string = "";
+const setRendererUrl = (url: string | undefined) => (rendererUrl = url);
 export const getPage = async () => {
-  const setRendererUrl = (url) => (rendererUrl = url);
   const options: PuppeteerLaunchOptions =
     process.env.NODE_ENV === "production"
       ? {
@@ -26,12 +26,14 @@ export const getPage = async () => {
   await page.setRequestInterception(true);
 
   page.on("request", async (request) => {
+    let url = request.url();
+    if (rendererUrl && url.startsWith("http://localhost:3000") && !url.includes(".js")) {
+      url = request.url().replaceAll("http://localhost:3000", rendererUrl);
+    }
+
     try {
       const response = await axios({
-        url:
-          request.url().includes("_next") || request.url().includes("renderer")
-            ? request.url()
-            : request.url().replaceAll("http://localhost:3000", rendererUrl),
+        url,
         responseType: "arraybuffer",
         method: request.method(),
         data: request.postData(),

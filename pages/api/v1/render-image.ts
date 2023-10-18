@@ -28,16 +28,20 @@ const renderImage = async ({ method, query }: NextApiRequest, res: NextApiRespon
 
         const queryAndAnchor = genQueryWithKeyInAnchor(q, anchor);
         const rendererUrl = RENDERER_URL + queryAndAnchor;
-        setRendererUrl(rendererUrl);
 
         await page.goto(rendererUrl, { waitUntil: "networkidle2" });
 
         const iframe = await page.$("iframe#iframe");
+        const agencyRendererUrl = await page.$eval("iframe#iframe", (element) => element.getAttribute("src"));
         const contentFrame = await iframe.contentFrame();
         await contentFrame.waitForSelector("#rendered-certificate", { visible: true });
         await contentFrame.$("#rendered-certificate");
         const iframeContent = await contentFrame.content();
-        page.setContent(iframeContent);
+        setRendererUrl(agencyRendererUrl);
+        await page.setContent(iframeContent);
+
+        await sleep(10000);
+
         const img = (await page.screenshot({ encoding: "base64", fullPage: true })) as string;
         const imgBuffer = Buffer.from(img, "base64");
 
@@ -47,6 +51,7 @@ const renderImage = async ({ method, query }: NextApiRequest, res: NextApiRespon
         res.status(500).end(e instanceof Error ? e.message : `UnknownError: ${JSON.stringify(e)}`);
       } finally {
         await browser.close();
+        setRendererUrl(undefined);
       }
       break;
     default:
