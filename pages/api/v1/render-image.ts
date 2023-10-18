@@ -35,7 +35,25 @@ const renderImage = async ({ method, query }: NextApiRequest, res: NextApiRespon
         await contentFrame.waitForSelector("#rendered-certificate", { visible: true });
         const cert = await contentFrame.$("#rendered-certificate");
 
-        const img = (await cert.screenshot({ encoding: "base64" })) as string;
+        await page.mouse.wheel({ deltaY: 200000 });
+        await page.mouse.wheel({ deltaY: 200000 });
+        await sleep(1000);
+        const viewPort = await page.viewport();
+        const certBoundingBox = await cert.boundingBox();
+        const iframeHeight = viewPort.height + Math.abs(certBoundingBox.y);
+        await page.evaluate(() => {
+          window.scrollTo({
+            top: 0,
+          });
+        });
+
+        page.addStyleTag({
+          content: `iframe { height: ${iframeHeight}px!important; }`,
+        });
+
+        const img = (await iframe.screenshot({
+          encoding: "base64",
+        })) as string;
         const imgBuffer = Buffer.from(img, "base64");
 
         res.writeHead(200, { "Content-Type": "image/png", "Content-Length": imgBuffer.length });
@@ -53,3 +71,11 @@ const renderImage = async ({ method, query }: NextApiRequest, res: NextApiRespon
 };
 
 export default renderImage;
+
+function sleep(time: number) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(undefined);
+    }, time);
+  });
+}
