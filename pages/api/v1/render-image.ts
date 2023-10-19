@@ -33,9 +33,12 @@ const renderImage = async ({ method, query }: NextApiRequest, res: NextApiRespon
         const iframe = await page.$("iframe#iframe");
         const contentFrame = await iframe.contentFrame();
         await contentFrame.waitForSelector("#rendered-certificate", { visible: true });
-        const cert = await contentFrame.$("#rendered-certificate");
 
-        const img = (await cert.screenshot({ encoding: "base64" })) as string;
+        const frame = page.frames().find((f) => f.parentFrame()?.url() === rendererUrl);
+        const frameHeight = await frame.$eval("html", (e) => e.scrollHeight);
+        await page.$eval("iframe", (el, frameHeight) => (el.style.height = `${frameHeight}px`), frameHeight);
+
+        const img = (await iframe.screenshot({ encoding: "base64" })) as string;
         const imgBuffer = Buffer.from(img, "base64");
 
         res.writeHead(200, { "Content-Type": "image/png", "Content-Length": imgBuffer.length });
