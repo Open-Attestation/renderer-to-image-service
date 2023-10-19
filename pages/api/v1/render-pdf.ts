@@ -34,12 +34,11 @@ const renderImage = async ({ method, query }: NextApiRequest, res: NextApiRespon
         const contentFrame = await iframe.contentFrame();
         await contentFrame.waitForSelector("#rendered-certificate", { visible: true });
 
-        const pageIframe = page
-          .frames()
-          .find((f) => f.parentFrame()?.url() === rendererUrl)
-          .page();
+        const frame = page.frames().find((f) => f.parentFrame()?.url() === rendererUrl);
+        const frameHeight = await frame.$eval("html", (e) => e.scrollHeight);
+        await page.$eval("iframe", (el, frameHeight) => (el.style.height = `${frameHeight}px`), frameHeight);
 
-        const pdf = await pageIframe.pdf({
+        const pdf = await frame.page().pdf({
           printBackground: true,
           format: "a4",
         });
